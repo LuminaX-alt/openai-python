@@ -1,6 +1,18 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from __future__ import annotations
+from typing import Optional, Any
+from pydantic import BaseModel
+
+class ResponseTextDeltaEvent(BaseModel):
+    """
+    Event emitted when there is a text delta in the response.
+    """
+
+    content_index: int
+    delta: str
+    sequence_number: int
+    logprobs: Optional[Any] = None  # Made optional to prevent validation errors
 
 from .session import Session as Session
 from .error_event import ErrorEvent as ErrorEvent
