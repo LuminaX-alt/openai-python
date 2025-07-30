@@ -1,6 +1,19 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from __future__ import annotations
+from enum import Enum
+
+class RealtimeResponseStatus(str, Enum):
+    """
+    Possible statuses for a Realtime API response.
+    """
+
+    queued = "queued"
+    in_progress = "in_progress"
+    completed = "completed"
+    failed = "failed"
+    cancelled = "cancelled"
+
 
 from .session import Session as Session
 from .error_event import ErrorEvent as ErrorEvent
