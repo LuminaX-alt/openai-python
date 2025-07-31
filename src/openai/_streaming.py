@@ -14,6 +14,16 @@ from ._exceptions import APIError
 
 if TYPE_CHECKING:
     from ._client import OpenAI, AsyncOpenAI
+    EVENT_TYPE_MAP = {
+    "response.output_text.delta": ResponseTextDeltaEvent,
+    "response.output_audio.delta": ResponseAudioDeltaEvent,
+    "response.file_search.delta": ResponseFileSearchDeltaEvent,  # <-- ADD THIS
+    # other event types...
+}
+class ResponseFileSearchDeltaEvent(BaseModel):
+    type: str
+    file_search_results: list
+
 
 
 _T = TypeVar("_T")
