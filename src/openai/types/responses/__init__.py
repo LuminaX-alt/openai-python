@@ -18,6 +18,16 @@ from .parsed_response import (
     ParsedResponseOutputMessage as ParsedResponseOutputMessage,
     ParsedResponseFunctionToolCall as ParsedResponseFunctionToolCall,
 )
+from typing import Optional
+from pydantic import BaseModel
+
+class CodeInterpreterToolCall(BaseModel):
+    type: str = "code_interpreter"
+    input: str
+ALLOWED_TOOL_TYPES = {"function", "web_search_preview", "code_interpreter"}
+if tool_call["type"] == "code_interpreter":
+    event_name = "response.output_tool_call.delta"
+
 from .response_prompt import ResponsePrompt as ResponsePrompt
 from .response_status import ResponseStatus as ResponseStatus
 from .tool_choice_mcp import ToolChoiceMcp as ToolChoiceMcp
