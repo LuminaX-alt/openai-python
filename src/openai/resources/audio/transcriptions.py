@@ -1,4 +1,17 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+from openai._base_client import APIClient
+
+class AudioTranscriptions(APIClient):
+    def create(self, model: str, file: bytes, **kwargs):
+        # Route to Responses API for gpt-4o-transcribe models
+        if model.startswith("gpt-4o-transcribe"):
+            return self._client.responses.create(
+                model=model,
+                input=[{"role": "user", "content": [{"type": "input_audio", "audio": file}]}],
+                **kwargs
+            )
+        # Legacy Whisper transcription path
+        return self._post("/audio/transcriptions", body={"model": model}, files={"file": file}, **kwargs)
 
 from __future__ import annotations
 
