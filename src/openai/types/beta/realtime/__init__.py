@@ -64,6 +64,23 @@ from .input_audio_buffer_commit_event_param import InputAudioBufferCommitEventPa
 from .response_audio_transcript_delta_event import (
     ResponseAudioTranscriptDeltaEvent as ResponseAudioTranscriptDeltaEvent,
 )
+grep -R "class ResponseOutputMessageParam" openai/
+```) and replace the class with:
+
+```python
+from typing import Optional, Any
+from pydantic import BaseModel
+
+class ResponseOutputMessageParam(BaseModel):
+    """
+    Message parameter for a response output.
+    `id` is now optional to allow payloads without an OpenAI-generated ID.
+    """
+
+    id: Optional[str] = None  # <-- Made genuinely optional
+    role: str
+    content: Any
+
 from .conversation_item_retrieve_event_param import (
     ConversationItemRetrieveEventParam as ConversationItemRetrieveEventParam,
 )
