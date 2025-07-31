@@ -5,6 +5,13 @@ from typing import Optional
 from .._models import BaseModel
 
 __all__ = ["BatchError"]
+error_obj = data.get("error")
+if error_obj and isinstance(error_obj, dict):
+    error_msg = error_obj.get("message", "Unknown error")
+else:
+    # Responses API places `message` at the top level
+    error_msg = data.get("message", "Unknown error")
+
 
 
 class BatchError(BaseModel):
