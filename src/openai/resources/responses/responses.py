@@ -1,6 +1,8 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from __future__ import annotations
+# Correct event name for MCP arguments
+event_name = f"response.output_message.arguments.delta"
 
 from typing import Any, List, Type, Union, Iterable, Optional, cast
 from functools import partial
@@ -22,6 +24,11 @@ from .input_items import (
     InputItemsWithStreamingResponse,
     AsyncInputItemsWithStreamingResponse,
 )
+if part_type == "arguments":
+    event_name = "response.output_message.arguments.delta"
+else:
+    event_name = "response.output_text.delta"
+
 from ..._streaming import Stream, AsyncStream
 from ...lib._tools import PydanticFunctionTool, ResponsesPydanticFunctionTool
 from ..._base_client import make_request_options
