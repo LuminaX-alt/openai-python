@@ -1,7 +1,15 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+from pydantic import BaseModel, Extra
+
+class FlexibleModel(BaseModel):
+    """
+    A base model that tolerates unexpected fields (Edge Case 17 fix).
+    """
+    class Config:
+        extra = Extra.allow
 
 from __future__ import annotations
-
+from pydantic import BaseModel, Extra
 from .session import Session as Session
 from .error_event import ErrorEvent as ErrorEvent
 from .conversation_item import ConversationItem as ConversationItem
