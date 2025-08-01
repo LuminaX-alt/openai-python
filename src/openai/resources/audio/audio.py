@@ -10,6 +10,18 @@ from .speech import (
     SpeechWithStreamingResponse,
     AsyncSpeechWithStreamingResponse,
 )
+class Transcriptions(SyncAPIResource):
+    def create(self, *, file: FileTypes, model: str, **params) -> Transcription:
+        return self._post(
+            "/audio/transcriptions",
+            body=params,
+            files={"file": file},
+            cast_to=Transcription,
+        )
+# Ensure BytesIO has a name
+if hasattr(file, "read") and not getattr(file, "name", None):
+    file.name = "audio.wav"  # default extension for BytesIO uploads
+
 from ..._compat import cached_property
 from ..._resource import SyncAPIResource, AsyncAPIResource
 from .translations import (
@@ -20,6 +32,18 @@ from .translations import (
     TranslationsWithStreamingResponse,
     AsyncTranslationsWithStreamingResponse,
 )
+class Transcriptions(SyncAPIResource):
+    def create(self, *, file: FileTypes, model: str, **params) -> Transcription:
+        # Patch: Ensure BytesIO-like objects have a filename
+        if hasattr(file, "read") and not getattr(file, "name", None):
+            file.name = "audio.wav"
+        return self._post(
+            "/audio/transcriptions",
+            body=params,
+            files={"file": file},
+            cast_to=Transcription,
+        )
+
 from .transcriptions import (
     Transcriptions,
     AsyncTranscriptions,
