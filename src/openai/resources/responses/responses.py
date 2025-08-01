@@ -1,4 +1,9 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+for part in data.get("output", []):
+    content = part.get("content")
+    if content is None:
+        content = ""  # safe default for filtered/redacted parts
+    part["content"] = content
 
 from __future__ import annotations
 
