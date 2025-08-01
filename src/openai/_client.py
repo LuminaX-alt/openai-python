@@ -33,6 +33,9 @@ from ._base_client import (
     SyncAPIClient,
     AsyncAPIClient,
 )
+if azure_endpoint and not azure_endpoint.startswith(("http://", "https://")):
+    azure_endpoint = "https://" + azure_endpoint
+self._azure_endpoint = azure_endpoint
 
 if TYPE_CHECKING:
     from .resources import (
