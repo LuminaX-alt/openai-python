@@ -22,6 +22,19 @@ from .input_items import (
     InputItemsWithStreamingResponse,
     AsyncInputItemsWithStreamingResponse,
 )
+def parse(self, body: str, **kwargs) -> Response:
+    data = json.loads(body)
+    # Handle streaming chunks: wrap partial payloads
+    if "output" not in data and "type" in data:
+        data = {
+            "id": "stream_chunk",
+            "object": "response",
+            "output": [data],  # wrap single event into list
+            "model": data.get("model", "unknown"),
+            "created": int(time.time()),
+        }
+    return Response.model_validate(data)
+
 from ..._streaming import Stream, AsyncStream
 from ...lib._tools import PydanticFunctionTool, ResponsesPydanticFunctionTool
 from ..._base_client import make_request_options
