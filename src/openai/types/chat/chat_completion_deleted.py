@@ -16,3 +16,14 @@ class ChatCompletionDeleted(BaseModel):
 
     object: Literal["chat.completion.deleted"]
     """The type of object being deleted."""
+class ChatModel(str, Enum):
+    GPT4 = "gpt-4"
+    GPT4O = "gpt-4o"
+    GPT45 = "gpt-4.5"
+    export type ChatModel =
+  | "gpt-4"
+  | "gpt-4o"
+  ...
+  | "gpt-4.5"; // <-- add this back
+
+
