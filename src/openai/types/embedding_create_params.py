@@ -1,4 +1,20 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+import openai
+from embedding_patch import PatchedEmbedding
+
+openai.types.Embeddings.Embedding = PatchedEmbedding
+
+from typing import List, Union
+from pydantic import BaseModel
+
+class PatchedEmbedding(BaseModel):
+    embedding: Union[List[float], str]
+    index: int
+
+    class Config:
+        arbitrary_types_allowed = True
+        validate_assignment = False
+
 
 from __future__ import annotations
 
