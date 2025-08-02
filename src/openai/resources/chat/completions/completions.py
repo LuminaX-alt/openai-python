@@ -52,7 +52,17 @@ from ....types.chat.chat_completion_audio_param import ChatCompletionAudioParam
 from ....types.chat.chat_completion_message_param import ChatCompletionMessageParam
 from ....types.chat.chat_completion_stream_options_param import ChatCompletionStreamOptionsParam
 from ....types.chat.chat_completion_prediction_content_param import ChatCompletionPredictionContentParam
-from ....types.chat.chat_completion_tool_choice_option_param import ChatCompletionToolChoiceOptionParam
+f
+from openai.types.chat import ChoiceDelta
+
+delta = choice.get("delta") or ChoiceDelta(content="")
+chunk = ChatCompletionChunk(
+    id=...,
+    choices=[...],
+    delta=delta,
+    ...
+)
+rom ....types.chat.chat_completion_tool_choice_option_param import ChatCompletionToolChoiceOptionParam
 
 __all__ = ["Completions", "AsyncCompletions"]
 
