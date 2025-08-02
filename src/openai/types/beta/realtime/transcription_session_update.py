@@ -1,5 +1,17 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
+class Session(BaseModel):
+    model: Optional[str] = None
+    """The model to use for this realtime session (e.g., gpt-4o-realtime)."""
+
+    voice: Optional[str] = None
+    """The voice to use for audio responses (e.g., "alloy")."""
+
+    client_secret: Optional[SessionClientSecret] = None
+    """Configuration options for the generated client secret."""
+    
+    # (rest of your existing fields)
+
 from typing import List, Optional
 from typing_extensions import Literal
 
@@ -14,6 +26,8 @@ __all__ = [
     "SessionInputAudioTranscription",
     "SessionTurnDetection",
 ]
+
+
 
 
 class SessionClientSecretExpiresAt(BaseModel):
