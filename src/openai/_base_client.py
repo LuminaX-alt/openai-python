@@ -67,6 +67,16 @@ from ._response import (
     AsyncAPIResponse,
     extract_response_type,
 )
+from pydantic import ValidationError
+
+def _parse_response(self, response_format, response):
+    try:
+        return response_format.model_validate(response)
+    except ValidationError as e:
+        raise ValueError(
+            f"Failed to parse response into {getattr(response_format, '__name__', str(response_format))}: {e}"
+        ) from e
+
 from ._constants import (
     DEFAULT_TIMEOUT,
     MAX_RETRY_DELAY,
