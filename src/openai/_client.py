@@ -1,4 +1,12 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+def _strip_unsupported_keywords(schema: dict) -> dict:
+    """Recursively remove unsupported JSON Schema keywords like `examples`."""
+    if not isinstance(schema, dict):
+        return schema
+    schema.pop("examples", None)
+    for k, v in schema.items():
+        schema[k] = _strip_unsupported_keywords(v)
+    return schema
 
 from __future__ import annotations
 
@@ -88,6 +96,11 @@ class OpenAI(SyncAPIClient):
     'http://' or 'https://' scheme. For example: 'http://example.com' becomes
     'wss://example.com'
     """
+    if response_format.get("type") == "json_schema":
+    response_format["json_schema"]["schema"] = _strip_unsupported_keywords(
+        response_format["json_schema"]["schema"]
+    )
+
 
     def __init__(
         self,
