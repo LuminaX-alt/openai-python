@@ -1,4 +1,80 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+from typing import Any, Dict
+from ..._types import NOT_GIVEN, NotGiven
+from ..._client import SyncAPIClient, AsyncAPIClient
+
+class Transcriptions:
+    def __init__(self, client: SyncAPIClient, async_client: AsyncAPIClient):
+        self._client = client
+        self._async_client = async_client
+
+    def create(
+        self,
+        *,
+        model: str,
+        file: Any,
+        **params: Any,
+    ) -> Dict:
+        # Always enforce transcribe task
+        params["task"] = "transcribe"
+        return self._client.post(
+            f"/audio/transcriptions",
+            files={"file": file},
+            data={"model": model, **params},
+        )
+
+    async def create_async(
+        self,
+        *,
+        model: str,
+        file: Any,
+        **params: Any,
+    ) -> Dict:
+        # Always enforce transcribe task
+        params["task"] = "transcribe"
+        return await self._async_client.post(
+            f"/audio/transcriptions",
+            files={"file": file},
+            data={"model": model, **params},
+        )
+from typing import Any, Dict
+from ..._types import NOT_GIVEN, NotGiven
+from ..._client import SyncAPIClient, AsyncAPIClient
+
+class Translations:
+    def __init__(self, client: SyncAPIClient, async_client: AsyncAPIClient):
+        self._client = client
+        self._async_client = async_client
+
+    def create(
+        self,
+        *,
+        model: str,
+        file: Any,
+        **params: Any,
+    ) -> Dict:
+        # Always enforce translate task
+        params["task"] = "translate"
+        return self._client.post(
+            f"/audio/translations",
+            files={"file": file},
+            data={"model": model, **params},
+        )
+
+    async def create_async(
+        self,
+        *,
+        model: str,
+        file: Any,
+        **params: Any,
+    ) -> Dict:
+        # Always enforce translate task
+        params["task"] = "translate"
+        return await self._async_client.post(
+            f"/audio/translations",
+            files={"file": file},
+            data={"model": model, **params},
+        )
 
 from __future__ import annotations
 
