@@ -12,6 +12,14 @@ from ..shared.error_object import ErrorObject
 from .threads.runs.run_step import RunStep
 from .threads.message_delta_event import MessageDeltaEvent
 from .threads.runs.run_step_delta_event import RunStepDeltaEvent
+from typing_extensions import Literal, Union
+
+class ToolCall(BaseModel):
+    id: str
+    type: str  # <-- Make this a generic string instead of strict Literal
+    function: Optional[FunctionCall] = None
+    # Add other fields if present
+
 
 __all__ = [
     "AssistantStreamEvent",
