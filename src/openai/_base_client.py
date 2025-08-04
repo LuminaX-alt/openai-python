@@ -1,5 +1,31 @@
-from __future__ import annotations
+# Add at the top
+import os
+import ssl
+import certifi
+from pathlib import Path
 
+# Inside the OpenAI client initialization (e.g., __init__ of BaseClient)
+def __init__(self, **kwargs):
+    # Existing init code...
+
+    # --- WSL FIX START ---
+    # Ensure SSL context uses system certificates (important for WSL)
+    if kwargs.get("verify_ssl", True):
+        ssl_context = ssl.create_default_context(cafile=certifi.where())
+        kwargs["ssl"] = ssl_context
+
+    # Normalize HOME path for WSL (Windows path translation)
+    home_path = os.environ.get("HOME") or str(Path("~").expanduser())
+    env_file = Path(home_path) / ".env"
+    if env_file.exists():
+        from dotenv import load_dotenv
+        load_dotenv(env_file)
+    # --- WSL FIX END ---
+
+    super().__init__(**kwargs)
+
+from __future__ import annotations
+pip install --upgrade openai
 import sys
 import json
 import time
@@ -37,6 +63,8 @@ import distro
 import pydantic
 from httpx import URL
 from pydantic import PrivateAttr
+echo "OPENAI_API_KEY=your_api_key_here" > ~/.env
+
 
 from . import _exceptions
 from ._qs import Querystring
