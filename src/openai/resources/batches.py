@@ -1,4 +1,34 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+# openai/types/batches/batch_create_params.py
+from typing import Any, Dict, List, Union
+from pydantic import BaseModel
+
+class BatchRequest(BaseModel):
+    method: str
+    url: str
+    body: Dict[str, Any]
+
+class BatchCreateParams(BaseModel):
+    requests: List[BatchRequest]
+# openai/types/batches/batch.py
+from typing import Any, Dict, List
+from pydantic import BaseModel
+
+class BatchResponseItem(BaseModel):
+    id: str
+    status: int
+    body: Dict[str, Any]
+
+class BatchResponse(BaseModel):
+    responses: List[BatchResponseItem]
+    errors: List[Dict[str, Any]] = []
+# openai/resources/batches.py
+from ..types.batches.batch_create_params import BatchCreateParams
+from ..types.batches.batch import BatchResponse
+
+class Batches:
+    def create(self, params: BatchCreateParams) -> BatchResponse:
+        return self._client._request("POST", "/v1/batches", json=params.dict())
 
 from __future__ import annotations
 
