@@ -1,6 +1,39 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from __future__ import annotations
+# openai/utils/token_counter.py
+
+from typing import List, Dict, Union
+import tiktoken
+
+def num_tokens(
+    text_or_messages: Union[str, List[Dict[str, str]]],
+    model: str = "gpt-4o"
+) -> int:
+    """
+    Calculate the number of tokens for a string or chat messages.
+    
+    :param text_or_messages: String or list of {"role":..., "content":...} messages.
+    :param model: Model name for tokenization (defaults to gpt-4o).
+    :return: Number of tokens.
+    """
+    encoding = tiktoken.encoding_for_model(model)
+    
+    if isinstance(text_or_messages, str):
+        return len(encoding.encode(text_or_messages))
+    
+    elif isinstance(text_or_messages, list):
+        num_tokens = 0
+        for msg in text_or_messages:
+            # Each message has role + content
+            num_tokens += 3  # Roughly accounts for role/content overhead
+            num_tokens += len(encoding.encode(msg.get("content", "")))
+            num_tokens += len(encoding.encode(msg.get("role", "")))
+        num_tokens += 3  # Every reply has priming tokens
+        return num_tokens
+    
+    else:
+        raise TypeError("Input must be a string or a list of messages.")
 
 import os as _os
 import typing as _t
