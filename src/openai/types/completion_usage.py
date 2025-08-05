@@ -1,4 +1,20 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+# openai/types/completion_usage.py
+
+from typing import Optional
+from pydantic import BaseModel, Field
+
+class CompletionUsage(BaseModel):
+    prompt_tokens: int = Field(default=0)
+    completion_tokens: int = Field(default=0)
+    total_tokens: int = Field(default=0)
+
+    def __init__(self, **data):
+        # Replace None with 0 for any token counts
+        for key in ["prompt_tokens", "completion_tokens", "total_tokens"]:
+            if data.get(key) is None:
+                data[key] = 0
+        super().__init__(**data)
 
 from typing import Optional
 
