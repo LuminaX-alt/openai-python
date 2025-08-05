@@ -1,4 +1,50 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+# openai/_client.py
+from .resources.responses import Responses  # <-- add this import at the top
+
+class AzureOpenAI(BaseClient):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add the Responses API for Azure with Azure-specific path
+        self.responses = Responses(self, api_prefix="/openai/deployments/{deployment_id}/responses")
+# openai/_async_client.py
+from .resources.responses import AsyncResponses  # <-- add this import at the top
+
+class AsyncAzureOpenAI(AsyncBaseClient):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add the Responses API for Azure with Azure-specific path
+        self.responses = AsyncResponses(self, api_prefix="/openai/deployments/{deployment_id}/responses")
+# openai/resources/responses.py
+
+class Responses:
+    def __init__(self, client, api_prefix="/v1/responses"):
+        self._client = client
+        self._api_prefix = api_prefix
+
+    def create(self, deployment_id: str, **kwargs):
+        """
+        Create a response for Azure OpenAI.
+        :param deployment_id: Azure deployment name (model).
+        :param kwargs: Request payload.
+        """
+        path = self._api_prefix.format(deployment_id=deployment_id)
+        return self._client._request("POST", path, json=kwargs)
+
+
+class AsyncResponses:
+    def __init__(self, client, api_prefix="/v1/responses"):
+        self._client = client
+        self._api_prefix = api_prefix
+
+    async def create(self, deployment_id: str, **kwargs):
+        """
+        Create a response for Azure OpenAI (async).
+        :param deployment_id: Azure deployment name (model).
+        :param kwargs: Request payload.
+        """
+        path = self._api_prefix.format(deployment_id=deployment_id)
+        return await self._client._request("POST", path, json=kwargs)
 
 from __future__ import annotations
 
