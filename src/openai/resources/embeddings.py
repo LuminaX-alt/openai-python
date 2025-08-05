@@ -1,4 +1,24 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+# openai/resources/embeddings.py
+from typing import Union, List, Tuple  # <-- add Tuple
+
+class Embeddings:
+    def create(
+        self,
+        *,
+        model: str,
+        input: Union[str, List[str], Tuple[str, ...]],  # <-- updated
+        user: Optional[str] = None,
+        **kwargs,
+    ) -> EmbeddingResponse:
+        ...
+# openai/types/embeddings/embedding_create_params.py
+from typing import Union, List, Tuple
+
+class EmbeddingCreateParams(BaseModel):
+    model: str
+    input: Union[str, List[str], Tuple[str, ...]]  # <-- updated
+    user: Optional[str] = None
 
 from __future__ import annotations
 
