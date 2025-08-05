@@ -1,4 +1,6 @@
 from __future__ import annotations
+# openai/_exceptions.py
+
 
 import sys
 import json
@@ -67,6 +69,29 @@ from ._response import (
     AsyncAPIResponse,
     extract_response_type,
 )
+# openai/_exceptions.py
+class ReadTimeoutError(OpenAIError):
+    """Raised when the server takes too long to send a response."""
+    pass
+import httpx
+from ._exceptions import ReadTimeoutError
+
+class BaseClient:
+    def _request(self, method, path, **kwargs):
+        try:
+            return self._http_client.request(method, path, **kwargs)
+        except httpx.ReadTimeout as e:
+            raise ReadTimeoutError(
+                f"Read timeout occurred while waiting for response from {path}. "
+                f"Consider increasing the timeout or using retries."
+            ) from e
+class BaseClient:
+    def __init__(self, *, timeout: float = 30.0, max_retries: int = 0, **kwargs):
+        self._timeout = timeout
+        self._max_retries = max_retries
+        super().__init__(**kwargs)
+self._http_client = httpx.Client(timeout=self._timeout)
+
 from ._constants import (
     DEFAULT_TIMEOUT,
     MAX_RETRY_DELAY,
