@@ -1,3 +1,26 @@
+# openai/cli/chat_fine_tunes.py
+import click
+import json
+from openai import FineTunes
+
+@click.group()
+def chat_fine_tunes():
+    """Manage chat model fine-tuning."""
+    pass
+
+@chat_fine_tunes.command("create")
+@click.option("-f", "--file", required=True, type=click.Path(exists=True), help="Training dataset (JSONL).")
+@click.option("-m", "--model", required=True, help="Base chat model (e.g., gpt-4o-mini).")
+def create(file, model):
+    """Create a new chat fine-tuning job."""
+    with open(file, "r") as f:
+        lines = [json.loads(l) for l in f]
+    for idx, example in enumerate(lines):
+        if "messages" not in example:
+            raise click.ClickException(f"Line {idx+1} missing 'messages'.")
+    resp = FineTunes.create(model=model, training_file=file)
+    click.echo(f"Created chat fine-tune: {resp['id']}")
+
 from __future__ import annotations
 
 import sys
