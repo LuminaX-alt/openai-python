@@ -1,3 +1,66 @@
+# openai/azure_files.py
+import os
+from typing import Optional, Dict, Any, Union
+from pathlib import Path
+from ._base_client import AzureOpenAIBaseClient
+
+class AzureFileClient(AzureOpenAIBaseClient):
+    def upload_file(
+        self,
+        file: Union[str, Path],
+        purpose: str = "assistants",
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        Uploads a file to Azure OpenAI for use with chat or assistants.
+        :param file: Path to file.
+        :param purpose: Purpose of the file ("assistants", "fine-tune", etc.)
+        :param metadata: Optional metadata dict.
+        """
+        file_path = Path(file)
+        if not file_path.exists():
+            raise FileNotFoundError(f"File {file_path} not found.")
+        with open(file_path, "rb") as f:
+            files = {
+                "file": (file_path.name, f, "application/octet-stream"),
+                "purpose": (None, purpose)
+            }
+            if metadata:
+                files["metadata"] = (None, str(metadata))
+            response = self._request(
+                "POST",
+                "/openai/files",
+                files=files,
+                headers={"Content-Type": "multipart/form-data"}
+            )
+        return response
+
+    def list_files(self) -> Dict[str, Any]:
+        """List uploaded files."""
+        return self._request("GET", "/openai/files")
+
+    def retrieve_file(self, file_id: str) -> Dict[str, Any]:
+        """Retrieve metadata for an uploaded file."""
+        return self._request("GET", f"/openai/files/{file_id}")
+
+    def delete_file(self, file_id: str) -> Dict[str, Any]:
+        """Delete an uploaded file."""
+        return self._request("DELETE", f"/openai/files/{file_id}")
+from .azure_files import AzureFileClient
+
+class AzureOpenAI(AzureFileClient):
+    """
+    AzureOpenAI Client with file support
+    """
+    pass
+def build_chat_payload(messages, input_files=None):
+    payload = {"messages": messages}
+    if input_files:
+        payload["input_files"] = [
+            {"file_id": f["id"], "type": "input_file"} for f in input_files
+        ]
+    return payload
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
