@@ -4,6 +4,56 @@ from __future__ import annotations
 
 from typing import Dict, List, Union, Iterable, Optional
 from typing_extensions import Literal, Required, TypeAlias, TypedDict
+from typing import List, Literal, Optional, Union
+from pydantic import BaseModel, Field
+
+
+class FunctionCall(BaseModel):
+    name: str
+    arguments: str
+
+
+class ToolCallFunction(BaseModel):
+    name: str
+    arguments: str
+
+
+class ToolCall(BaseModel):
+    id: str
+    type: Literal["function"]
+    function: ToolCallFunction
+
+
+class ChatCompletionMessage(BaseModel):
+    role: str
+    content: Optional[str] = None
+    name: Optional[str] = None
+    tool_call_id: Optional[str] = None
+    function_call: Optional[FunctionCall] = None
+    tool_calls: Optional[List[ToolCall]] = None
+
+
+class Choice(BaseModel):
+    index: int
+    message: ChatCompletionMessage
+    logprobs: Optional[dict] = None
+    finish_reason: Optional[str] = None
+
+
+class Usage(BaseModel):
+    prompt_tokens: int
+    completion_tokens: int
+    total_tokens: int
+
+
+class ChatCompletion(BaseModel):
+    id: str
+    object: Literal["chat.completion"]
+    created: int
+    model: str
+    choices: List[Choice]
+    usage: Optional[Usage] = None
+
 
 from ..shared.chat_model import ChatModel
 from ..shared_params.metadata import Metadata
