@@ -13,6 +13,36 @@ from ..._utils import is_given
 from .._errors import CLIError
 from .._models import BaseModel
 from ..._streaming import Stream
+import click
+from openai import OpenAI
+
+@click.command("create")
+@click.option("--model", required=True, help="Model to use.")
+@click.option("--prompt", required=True, help="Prompt to complete.")
+@click.option("--max-tokens", default=16, help="Maximum tokens to generate.")
+@click.option("--json", "as_json", is_flag=True, help="Output raw JSON response.")
+def completions_create(model, prompt, max_tokens, as_json):
+    """
+    Create a text completion.
+    """
+    client = OpenAI()
+
+    response = client.completions.create(
+        model=model,
+        prompt=prompt,
+        max_tokens=max_tokens
+    )
+
+    if as_json:
+        # Print full JSON output for parsing
+        click.echo(response.model_dump_json(indent=2))
+    else:
+        # Default: print the generated text
+        click.echo(response.choices[0].text)
+
+# If using a CLI group elsewhere, register:
+# cli_group.add_command(completions_create, name="completions.create")
+
 
 if TYPE_CHECKING:
     from argparse import _SubParsersAction
