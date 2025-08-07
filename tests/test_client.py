@@ -18,6 +18,27 @@ from typing_extensions import Literal
 
 import httpx
 import pytest
+import os
+import json
+import logging
+
+LOG_REQUEST_BODY = os.getenv("LOG_REQUEST_BODY", "false").lower() == "true"
+logger = logging.getLogger(__name__)
+
+def _send_request(method, url, headers=None, data=None, **kwargs):
+    if LOG_REQUEST_BODY:
+        try:
+            body = data if isinstance(data, str) else json.dumps(data)
+            logger.debug(f"Request URL: {url}")
+            logger.debug(f"Request Method: {method}")
+            logger.debug(f"Request Headers: {headers}")
+            logger.debug(f"Request Body: {body}")
+        except Exception as e:
+            logger.debug(f"Failed to log request body: {e}")
+
+    response = requests.request(method, url, headers=headers, data=data, **kwargs)
+    return response
+
 from respx import MockRouter
 from pydantic import ValidationError
 
@@ -57,6 +78,12 @@ def _get_open_connections(client: OpenAI | AsyncOpenAI) -> int:
 
     pool = transport._pool
     return len(pool._requests)
+def mask_sensitive(data):
+    if isinstance(data, dict):
+        for key in data:
+            if key.lower() in ['authorization', 'api_key', 'password']:
+                data[key] = '***MASKED***'
+    return data
 
 
 class TestOpenAI:
