@@ -10,6 +10,43 @@ import inspect
 import logging
 import platform
 import email.utils
+import httpx
+
+class BaseClient:
+    def __init__(
+        self,
+        base_url: str,
+        headers: dict,
+        timeout_connect: float = 10.0,
+        timeout_read: float = 300.0,
+        timeout_write: float = 30.0,
+        timeout_pool: float = 30.0,
+    ):
+        """
+        Initialize the OpenAI API base client.
+
+        Args:
+            base_url (str): API base URL
+            headers (dict): Default request headers
+            timeout_connect (float): Connection timeout in seconds
+            timeout_read (float): Read timeout in seconds (allow longer for streaming/large responses)
+            timeout_write (float): Write timeout in seconds
+            timeout_pool (float): Pool acquisition timeout in seconds
+        """
+        self._base_url = base_url
+        self._headers = headers
+
+        self._client = httpx.Client(
+            base_url=self._base_url,
+            headers=self._headers,
+            timeout=httpx.Timeout(
+                connect=timeout_connect,
+                read=timeout_read,
+                write=timeout_write,
+                pool=timeout_pool
+            )
+        )
+
 from types import TracebackType
 from random import random
 from typing import (
@@ -37,6 +74,7 @@ import distro
 import pydantic
 from httpx import URL
 from pydantic import PrivateAttr
+
 
 from . import _exceptions
 from ._qs import Querystring
