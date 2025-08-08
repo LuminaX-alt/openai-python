@@ -10,6 +10,41 @@ import httpx
 import pydantic
 
 import openai
+# openai/_cli/chat_fine_tunes.py
+import click
+
+
+@click.group()
+def chat_fine_tunes():
+    """Manage chat-style fine-tunes for GPT models."""
+    pass
+
+@chat_fine_tunes.command("create")
+@click.option("--training-file", required=True, help="The file ID of the training dataset (JSONL format).")
+@click.option("--validation-file", required=False, help="Optional file ID for validation dataset.")
+@click.option("--model", required=True, help="Base model to fine-tune (e.g., gpt-4o-mini).")
+@click.option("--suffix", required=False, help="Optional suffix for the fine-tuned model name.")
+def create(training_file, validation_file, model, suffix):
+    """
+    Create a chat fine-tuning job.
+    The training file must be in the chat messages JSONL format:
+    {"messages":[{"role":"system","content":"..."},{"role":"user","content":"..."}]}
+    """
+    response = openai.FineTuningJob.create(
+        training_file=training_file,
+        validation_file=validation_file,
+        model=model,
+        suffix=suffix
+    )
+    click.echo(f"Created chat fine-tune job: {response.id}")
+
+@chat_fine_tunes.command("list")
+def list_jobs():
+    """List all chat fine-tuning jobs."""
+    jobs = openai.FineTuningJob.list()
+    for job in jobs.data:
+        click.echo(f"{job.id} | {job.model} | {job.status}")
+
 
 from . import _tools
 from .. import _ApiType, __version__
@@ -106,6 +141,11 @@ def _build_parser() -> argparse.ArgumentParser:
         action="version",
         version="%(prog)s " + __version__,
     )
+    from openai._cli.chat_fine_tunes import chat_fine_tunes
+
+# In the `cli()` group definition
+cli.add_command(chat_fine_tunes)
+
 
     def help() -> None:
         parser.print_help()
