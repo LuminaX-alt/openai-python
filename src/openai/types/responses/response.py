@@ -19,6 +19,24 @@ from .response_output_item import ResponseOutputItem
 from .response_text_config import ResponseTextConfig
 from .tool_choice_function import ToolChoiceFunction
 from ..shared.responses_model import ResponsesModel
+from openai import AsyncOpenAI
+from response_text_extractor import extract_output_text
+
+async def fetch_response():
+    client = AsyncOpenAI()
+    response = await client.responses.create(
+        model="gpt-5-mini",
+        input=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "Say hello in one sentence."}
+        ],
+        max_output_tokens=50,
+    )
+
+    text = extract_output_text(response)
+    print("Output:", text)
+    return text
+
 
 __all__ = ["Response", "IncompleteDetails", "ToolChoice"]
 
@@ -253,18 +271,15 @@ class Response(BaseModel):
     [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#safety-identifiers).
     """
 
-    @property
-    def output_text(self) -> str:
-        """Convenience property that aggregates all `output_text` items from the `output`
-        list.
-
-        If no `output_text` content blocks exist, then an empty string is returned.
-        """
-        texts: List[str] = []
-        for output in self.output:
-            if output.type == "message":
-                for content in output.content:
-                    if content.type == "output_text":
-                        texts.append(content.text)
-
-        return "".join(texts)
+    @computed_field  # type: ignore[misc]
+@property
+def output_text(self) -> str:
+    return "".join(
+        content.text
+        for item in self.output or []
+        for content in getattr(item, "content", []) or []
+        if (
+            content.type == "output_text"
+            or getattr(item, "type", None) == "reasoning" and hasattr(content, "text")
+        )
+    )
