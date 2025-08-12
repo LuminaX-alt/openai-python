@@ -1,5 +1,4 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
-
 from __future__ import annotations
 
 import inspect
@@ -163,6 +162,24 @@ class Completions(SyncAPIResource):
             print("answer: ", message.parsed.final_answer)
         ```
         """
+        response_format = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "string_list_wrapper",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                }
+            },
+            "required": ["items"],
+            "additionalProperties": False
+        }
+    }
+}
+
         _validate_input_tools(tools)
 
         extra_headers = {
