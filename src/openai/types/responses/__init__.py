@@ -18,6 +18,12 @@ from .parsed_response import (
     ParsedResponseOutputMessage as ParsedResponseOutputMessage,
     ParsedResponseFunctionToolCall as ParsedResponseFunctionToolCall,
 )
+class ResponseInputMessageParam(ResponseOutputMessage):
+    """
+    Allows using output messages as valid input params by inheriting ResponseOutputMessage.
+    """
+    pass
+
 from .response_prompt import ResponsePrompt as ResponsePrompt
 from .response_status import ResponseStatus as ResponseStatus
 from .tool_choice_mcp import ToolChoiceMcp as ToolChoiceMcp
@@ -106,6 +112,13 @@ from .response_audio_transcript_delta_event import (
 from .response_reasoning_summary_done_event import (
     ResponseReasoningSummaryDoneEvent as ResponseReasoningSummaryDoneEvent,
 )
+ResponseInputItemParam = Union[
+    ResponseInputMessageParam,  # now inherits from ResponseOutputMessage
+    ResponseInputToolCallParam,
+    ResponseInputTextParam,
+    ResponseInputImageParam,
+]
+
 from .response_mcp_call_arguments_done_event import (
     ResponseMcpCallArgumentsDoneEvent as ResponseMcpCallArgumentsDoneEvent,
 )
