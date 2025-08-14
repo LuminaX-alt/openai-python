@@ -1,0 +1,103 @@
+"""
+Reproduction script for:
+Lack of determinism when making API calls through the AzureOpenAI object
+versus raw curl/Postman requests (#2559)
+
+This script sends a multimodal chat completion request with an image
+to Azure OpenAI 10 times and checks for completeness of the output.
+
+Expected:
+Consistent responses identical to Postman with the same parameters.
+
+Observed:
+Python requests / AzureOpenAI client produce incomplete or inconsistent
+responses (e.g., missing the value '0.781' in the parsed table output).
+"""
+
+import os
+import base64
+import requests
+
+# =============================
+# CONFIG — UPDATE THESE VALUES
+# =============================
+AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY", "YOUR_API_KEY")
+AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT", "YOUR_ENDPOINT")
+AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2024-05-01-preview")
+MODEL_DEPLOYMENT = os.getenv("AZURE_OPENAI_MODEL_DEPLOYMENT", "gpt-4.1")
+IMG_FILE_PATH = os.getenv("IMG_FILE_PATH", "sample.png")
+# =============================
+
+def encode_image(path: str) -> str:
+    with open(path, "rb") as f:
+        return base64.b64encode(f.read()).decode("utf-8").replace("\n", "")
+
+def main():
+    encoded_img = encode_image(IMG_FILE_PATH)
+
+    data = {
+        "model": MODEL_DEPLOYMENT,
+        "max_tokens": 3000,
+        "temperature": 0.0,
+        "seed": 42,
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/png;base64,{encoded_img}"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "text": """What is the information in this table?
+Return the information found in this image of a table based on the following specifications:
+- Return the table information in the form of key value pairs separated by a comma.
+- Each key corresponds to a column in the table, and each value corresponds to the cell value.
+- Make sure to include all the information in the table in your final output.
+- You must treat each row as a completely independent entity - if multiple rows have the same value in a column, you must repeat that value for each row explicitly.
+- Never combine, merge or deduplicate values across rows, even if they are identical.
+- For tables with repeated values:
+    * Each row must have all its values specified explicitly
+    * Do not use any shorthand notations like "same as above" or "ditto"
+    * If a value appears in multiple rows, repeat it fully in each row
+    * Never reference other rows or use relative references
+- You may encounter nested columns; if so, take the time to deduce the right way to format them as key value pairs.
+- Return HTML tags instead of plain text to preserve the original style of the text, whenever needed.
+- Merged cells: Repeat the merged cell value in ALL cells that are part of the merge area
+- Do not leave any row empty unless the original table cell is empty.
+- Each row's output must be self-contained and complete, regardless of what appears in other rows.
+- If a cell is empty in the original table, leave it empty in your output for that row.
+- Lastly, If the image that you see is not an image of a table, return an empty string."""
+                    }
+                ]
+            }
+        ]
+    }
+
+    headers = {
+        "Content-Type": "application/json",
+        "api-key": AZURE_OPENAI_API_KEY
+    }
+    params = {"api-version": AZURE_OPENAI_API_VERSION}
+
+    results_array = []
+    for i in range(10):
+        resp = requests.post(
+            f"{AZURE_OPENAI_ENDPOINT}/openai/deployments/{MODEL_DEPLOYMENT}/chat/completions",
+            headers=headers,
+            params=params,
+            json=data
+        )
+        resp.raise_for_status()
+        content = resp.json()['choices'][0]['message']['content']
+        results_array.append(content)
+        print(f"Run {i+1}:\n{content}\n{'='*40}")
+
+    count_0781 = sum(r.count("0.781") for r in results_array)
+    print(f"\n'0.781' appeared {count_0781} times across all runs")
+
+if __name__ == "__main__":
+    main()
