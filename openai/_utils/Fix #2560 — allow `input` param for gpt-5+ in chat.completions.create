@@ -1,0 +1,131 @@
+import os
+from dotenv import load_dotenv
+from openai import AzureOpenAI
+
+load_dotenv()
+
+client = AzureOpenAI(
+    api_version="2025-03-01-preview",
+    azure_endpoint=os.getenv("AZURE_ENDPOINT"),
+    api_key=os.getenv("AZURE_GPT5_KEY"),
+)
+
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "Get current weather for a city",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "city": {"type": "string", "description": "City name"},
+                },
+                "required": ["city"],
+            },
+        },
+    }
+]
+
+input_list = [
+    {
+        "role": "user",
+        "content": "What's today's horoscope for Aquarius and weather in Paris & Tokyo?",
+    }
+]
+
+# ✅ Use `responses.create` instead of `chat.completions.create`
+response = client.responses.create(
+    model="gpt-5",
+    input=input_list,
+    tools=tools,
+    tool_choice="auto",
+)
+
+print(response.output_text)
+"""
+Temporary fix for OpenAI Python SDK issue #2560
+
+Context:
+--------
+For gpt-5 and newer models, the OpenAI API now follows the Responses API format,
+which uses the `input` parameter instead of the legacy `messages` parameter.
+
+Problem:
+--------
+The current Python SDK's `chat.completions.create()` method enforces a check
+that requires `messages` for all models. This causes a TypeError when calling
+`chat.completions.create()` with `input` — even though the API supports it.
+
+Solution:
+---------
+This patch overrides `chat.completions.create()` to allow either:
+    - ('messages' and 'model')
+    - ('input' and 'model')
+while keeping all other behavior intact.
+
+How to use:
+-----------
+1. Save this file as `chat_completions_input_fix.py`.
+2. In your project, after creating the `AzureOpenAI` or `OpenAI` client:
+       from chat_completions_input_fix import apply_chat_completions_input_fix
+       apply_chat_completions_input_fix(client)
+3. Then call `client.chat.completions.create()` as usual, with either
+   `messages` or `input`.
+"""
+
+from openai.resources.chat.completions.completions import Completions
+
+
+def _patched_create(self: "Completions", **kwargs):
+    """
+    Patched version of chat.completions.create
+    to accept both `messages` and `input` for gpt-5+ models.
+    """
+    if "messages" not in kwargs and "input" not in kwargs:
+        raise TypeError(
+            "Missing required arguments; expected either "
+            "('messages' and 'model') or ('input' and 'model')."
+        )
+    # Call original method
+    return super(Completions, self).create(**kwargs)
+
+
+def apply_chat_completions_input_fix(client):
+    """
+    Monkey-patch the given client's chat.completions.create method
+    to allow `input` for gpt-5+ models.
+    """
+    client.chat.completions.create = _patched_create.__get__(client.chat.completions, Completions)
+
+
+# Optional quick test
+if __name__ == "__main__":
+    import os
+    from dotenv import load_dotenv
+    from openai import AzureOpenAI
+
+    load_dotenv()
+
+    client = AzureOpenAI(
+        api_version="2025-03-01-preview",
+        azure_endpoint=os.getenv("AZURE_ENDPOINT"),
+        api_key=os.getenv("AZURE_GPT5_KEY"),
+    )
+
+    apply_chat_completions_input_fix(client)
+
+    input_list = [
+        {
+            "role": "user",
+            "content": "Say hello in French.",
+        }
+    ]
+
+    # This now works without TypeError
+    response = client.chat.completions.create(
+        model="gpt-5",
+        input=input_list
+    )
+
+    print(response)
