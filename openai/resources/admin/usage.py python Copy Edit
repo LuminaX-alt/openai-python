@@ -1,0 +1,47 @@
+# openai/resources/admin/usage.py
+
+from openai._resource import SyncAPIResource, AsyncAPIResource
+
+class Usage(SyncAPIResource):
+    def retrieve(self):
+        """
+        Retrieve admin usage data (sync)
+        """
+        return self._client.get("/v1/admin/usage")
+
+
+class AsyncUsage(AsyncAPIResource):
+    async def retrieve(self):
+        """
+        Retrieve admin usage data (async)
+        """
+        return await self._client.get("/v1/admin/usage")
+# openai/resources/admin/__init__.py
+
+from .usage import Usage, AsyncUsage
+
+__all__ = ["Usage", "AsyncUsage"]
+from openai.resources.admin import Usage, AsyncUsage
+import types
+self.admin = types.SimpleNamespace(
+    usage=Usage(self),
+)
+# examples/admin_api_usage_demo.py
+
+import asyncio
+from openai import OpenAI, AsyncOpenAI
+
+api_key = "sk-..."  # Replace with a valid key
+
+# SYNC
+client = OpenAI(api_key=api_key)
+usage = client.admin.usage.retrieve()
+print("Sync Admin Usage:\n", usage)
+
+# ASYNC
+async def test_async():
+    async_client = AsyncOpenAI(api_key=api_key)
+    usage = await async_client.admin.usage.retrieve()
+    print("Async Admin Usage:\n", usage)
+
+asyncio.run(test_async())
