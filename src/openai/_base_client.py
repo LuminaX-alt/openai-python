@@ -10,6 +10,27 @@ import inspect
 import logging
 import platform
 import email.utils
+import httpx
+
+# Custom pool limits to reduce PoolTimeout errors in high-throughput scenarios
+custom_limits = httpx.Limits(
+    max_connections=100,              # total concurrent connections allowed
+    max_keepalive_connections=20,     # idle connections kept for reuse
+    keepalive_expiry=10.0              # seconds before idle connections are closed
+)
+
+self._client = httpx.Client(
+    base_url=self._base_url,
+    headers=self._headers,
+    timeout=httpx.Timeout(
+        connect=10.0,
+        read=300.0,
+        write=30.0,
+        pool=30.0
+    ),
+    limits=custom_limits
+)
+
 from types import TracebackType
 from random import random
 from typing import (
