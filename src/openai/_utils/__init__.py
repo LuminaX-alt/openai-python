@@ -58,3 +58,22 @@ from ._reflection import (
     function_has_argument as function_has_argument,
     assert_signatures_in_sync as assert_signatures_in_sync,
 )
+# Inside openai/util.py
+
+def convert_to_openai_object(response, api_key=None, api_base=None, api_version=None, organization=None):
+    from openai.openai_object import OpenAIObject
+
+    if isinstance(response, dict):
+        # ✅ Ensure usage.prompt_tokens_details is never None
+        if "usage" in response and isinstance(response["usage"], dict):
+            if response["usage"].get("prompt_tokens_details") is None:
+                response["usage"]["prompt_tokens_details"] = {}
+
+    return OpenAIObject.construct_from(
+        response,
+        api_key=api_key,
+        api_base=api_base,
+        api_version=api_version,
+        organization=organization,
+    )
+
