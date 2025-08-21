@@ -1,4 +1,11 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+class InsufficientQuotaError(OpenAIError):
+    """Raised when the user has exceeded their quota."""
+
+    def __init__(self, message=None):
+        if message is None:
+            message = "You have exceeded your current quota. Please visit https://platform.openai.com/account/usage to review your usage."
+        super().__init__(message)
 
 from __future__ import annotations
 
@@ -35,6 +42,9 @@ class OpenAIError(Exception):
 class APIError(OpenAIError):
     message: str
     request: httpx.Request
+    if error_code == "insufficient_quota":
+    raise InsufficientQuotaError(error_message)
+
 
     body: object | None
     """The API response body.
