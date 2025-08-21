@@ -3,6 +3,48 @@ pip install --upgrade openai
 pip show openai
 
 from __future__ import annotations
+from fastapi import FastAPI, Depends
+from openai import AsyncOpenAI
+
+app = FastAPI()
+
+def get_client():
+    return AsyncOpenAI()
+
+@app.get("/chat")
+async def chat(client: AsyncOpenAI = Depends(get_client)):
+    response = await client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": "Hello"}]
+    )
+    return response
+from fastapi import FastAPI
+from openai import AsyncOpenAI
+
+app = FastAPI()
+client: AsyncOpenAI | None = None
+
+@app.on_event("startup")
+async def startup_event():
+    global client
+    client = AsyncOpenAI()
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    await client.close()
+
+@app.get("/chat")
+async def chat():
+    response = await client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": "Hello"}]
+    )
+    return response
+import httpx
+from openai import AsyncOpenAI
+
+transport = httpx.AsyncHTTPTransport(retries=3)
+client = AsyncOpenAI(http_client=httpx.AsyncClient(transport=transport))
 
 import os
 from typing import TYPE_CHECKING, Any, Union, Mapping
