@@ -1,6 +1,15 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from __future__ import annotations
+# openai/types/chat/chat_completion_tool_message_param.py
+from typing import Literal, Optional
+from pydantic import BaseModel
+
+class ChatCompletionToolMessageParam(BaseModel):
+    role: Literal["tool"]
+    content: str
+    tool_call_id: str
+    name: Optional[str] = None  # <-- Added optional name
 
 from typing import Union, Iterable
 from typing_extensions import Literal, Required, TypedDict
