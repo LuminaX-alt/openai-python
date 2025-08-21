@@ -254,17 +254,31 @@ class Response(BaseModel):
     """
 
     @property
-    def output_text(self) -> str:
-        """Convenience property that aggregates all `output_text` items from the `output`
-        list.
+def output_text(self) -> str:
+    """
+    Returns the generated text output for the Responses API.
 
-        If no `output_text` content blocks exist, then an empty string is returned.
-        """
-        texts: List[str] = []
-        for output in self.output:
-            if output.type == "message":
-                for content in output.content:
-                    if content.type == "output_text":
-                        texts.append(content.text)
+    Extended to handle cases where models like gpt-5-mini return only
+    'reasoning' type items without a standard message output.
+    """
+    if not self.output:
+        return ""
 
-        return "".join(texts)
+    texts = []
+
+    # Standard extraction for message items
+    for item in self.output:
+        if getattr(item, "type", None) == "message":
+            for content in getattr(item, "content", []) or []:
+                if getattr(content, "type", None) == "output_text" and getattr(content, "text", None):
+                    texts.append(content.text)
+
+    # Fallback extraction for reasoning items
+    if not texts:
+        for item in self.output:
+            if getattr(item, "type", None) == "reasoning":
+                for part in getattr(item, "content", []) or []:
+                    if hasattr(part, "text") and part.text:
+                        texts.append(part.text)
+
+    return "".join(texts)
