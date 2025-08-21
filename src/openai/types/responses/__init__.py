@@ -3,6 +3,19 @@
 from __future__ import annotations
 
 from .tool import Tool as Tool
+from typing import Optional, Any
+from pydantic import BaseModel
+
+class ResponseTextDeltaEvent(BaseModel):
+    """
+    Event emitted when there is a text delta in the response.
+    """
+
+    content_index: int
+    delta: str
+    sequence_number: int
+    logprobs: Optional[Any] = None  # <-- Made optional to fix ValidationError
+
 from .response import Response as Response
 from .tool_param import ToolParam as ToolParam
 from .computer_tool import ComputerTool as ComputerTool
