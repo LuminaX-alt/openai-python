@@ -1,4 +1,29 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+# near where the request body is built (pseudocode / small patch)
+body = {
+    "model": model,
+    "instructions": instructions,
+    # ...
+}
+
+# existing code probably does something like:
+if tool_choice is not None:
+    body["tool_choice"] = tool_choice
+
+# <-- ADD THIS BLOCK to avoid server 400 for GPT-5:
+if isinstance(model, str) and model.startswith("gpt-5"):
+    # If user passed anything other than 'auto', remove/coerce it.
+    # Option A: remove the parameter so server will default to auto:
+    if body.get("tool_choice") not in (None, "auto"):
+        body.pop("tool_choice", None)
+        # optional: log a warning for user
+        logger.warning(
+            "tool_choice %r removed for model %s: GPT-5 only supports 'auto'.",
+            tool_choice,
+            model,
+        )
+    # Option B (alternative): force it to 'auto' instead:
+    # body["tool_choice"] = "auto"
 
 from __future__ import annotations
 
