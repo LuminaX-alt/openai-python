@@ -1,4 +1,79 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+from typing import Optional, Union
+from pydantic import BaseModel
+from openai._base_client import AsyncHttpClient, SyncHttpClient
+
+
+class Runs:
+    def __init__(self, client: Union[SyncHttpClient, AsyncHttpClient]):
+        self._client = client
+
+    def create_and_poll(
+        self,
+        thread_id: str,
+        assistant_id: str,
+        response_format: Optional[Union[dict, BaseModel]] = None,
+        **kwargs,
+    ):
+        payload = {
+            "assistant_id": assistant_id,
+            **kwargs,
+        }
+
+        if response_format is not None:
+            if isinstance(response_format, BaseModel):
+                schema = {
+                    "type": "json_schema",
+                    "schema": response_format.model_json_schema(),
+                }
+                payload["response_format"] = schema
+            else:
+                payload["response_format"] = response_format
+
+        response = self._client.post(
+            f"/threads/{thread_id}/runs",
+            json=payload,
+        )
+
+        if isinstance(response_format, BaseModel):
+            return response_format.parse_obj(response.json())
+
+        return response
+
+    def stream(
+        self,
+        thread_id: str,
+        assistant_id: str,
+        response_format: Optional[Union[dict, BaseModel]] = None,
+        **kwargs,
+    ):
+        payload = {
+            "assistant_id": assistant_id,
+            **kwargs,
+        }
+
+        if response_format is not None:
+            if isinstance(response_format, BaseModel):
+                schema = {
+                    "type": "json_schema",
+                    "schema": response_format.model_json_schema(),
+                }
+                payload["response_format"] = schema
+            else:
+                payload["response_format"] = response_format
+
+        stream_resp = self._client.post_stream(
+            f"/threads/{thread_id}/runs/stream",
+            json=payload,
+        )
+
+        if isinstance(response_format, BaseModel):
+            full_data = {}
+            for chunk in stream_resp:
+                full_data.update(chunk)
+            return response_format.parse_obj(full_data)
+
+        return stream_resp
 
 from __future__ import annotations
 
