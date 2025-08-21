@@ -1,6 +1,31 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from __future__ import annotations
+from typing import Optional, Any
+
+def create_and_poll(
+    self,
+    thread_id: str,
+    **kwargs: Any,
+) -> Any:
+    """
+    Create a run and poll until it is completed.
+    Supports timeout propagation for all underlying requests.
+    """
+    timeout = kwargs.pop("timeout", None)
+
+    # Step 1: Create the run
+    run = self.create(thread_id=thread_id, timeout=timeout, **kwargs)
+
+    # Step 2: Poll until completion
+    while run.status in ("queued", "in_progress"):
+        run = self.retrieve(
+            thread_id=thread_id,
+            run_id=run.id,
+            timeout=timeout
+        )
+    return run
+
 
 import typing_extensions
 from typing import List, Union, Iterable, Optional
