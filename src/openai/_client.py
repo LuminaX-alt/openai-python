@@ -1,10 +1,33 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+pip install --upgrade openai
+pip show openai
 
 from __future__ import annotations
 
 import os
 from typing import TYPE_CHECKING, Any, Union, Mapping
 from typing_extensions import Self, override
+from openai import AsyncOpenAI
+import asyncio
+import openai
+
+# Instantiate the async client
+client = openai.AsyncOpenAI(api_key="your-api-key")
+
+async def run_fine_tune():
+    # Step 1: Create fine-tune job
+    job = await client.fine_tuning.jobs.create(
+        training_file="file-abc123",  # Make sure file is already uploaded
+        model="gpt-3.5-turbo"
+    )
+    print(f"Fine-tune job created: {job.id}")
+
+    # Step 2: Stream events
+    async for event in client.fine_tuning.jobs.list_events(job_id=job.id, stream=True):
+        print(event)
+
+asyncio.run(run_fine_tune())
+
 
 import httpx
 
