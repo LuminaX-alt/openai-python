@@ -740,8 +740,18 @@ class Responses(SyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         ...
+    
+        inputs = kwargs.get("input", [])
 
-    def create(
+# Normalize file references (Edge case: PDF + streaming)
+for item in inputs:
+    if isinstance(item, dict) and "file" in item:
+        # If using Files API, replace raw file dict with file_id reference
+        file_obj = item.pop("file")
+        if isinstance(file_obj, dict) and "id" in file_obj:
+            item["file_id"] = file_obj["id"]
+
+        def create(
         self,
         *,
         background: Optional[bool] | NotGiven = NOT_GIVEN,
