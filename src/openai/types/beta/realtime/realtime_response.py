@@ -9,8 +9,14 @@ from .conversation_item import ConversationItem
 from .realtime_response_usage import RealtimeResponseUsage
 from .realtime_response_status import RealtimeResponseStatus
 
+
 __all__ = ["RealtimeResponse"]
 
+class InputTokenDetails(BaseModel):
+    audio_tokens: Optional[int] = None
+    cached_tokens: Optional[int] = None
+    text_tokens: Optional[int] = None
+    cached_tokens_details: Optional[dict] = None   # <-- add this
 
 class RealtimeResponse(BaseModel):
     id: Optional[str] = None
