@@ -1,6 +1,8 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from typing_extensions import Literal
+json.dumps(schema, ensure_ascii=False)
+
 
 from ..._models import BaseModel
 
