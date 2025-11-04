@@ -3,6 +3,23 @@ pip install --upgrade openai
 pip show openai
 
 from __future__ import annotations
+# openai/_client.py
+from .resources.responses import Responses
+
+class AzureOpenAI(BaseClient):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add Responses API for Azure
+        self.responses = Responses(self, api_prefix="/openai/deployments/{deployment_id}/responses")
+# openai/_async_client.py
+from .resources.responses import AsyncResponses
+
+class AsyncAzureOpenAI(AsyncBaseClient):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add Responses API for Azure
+        self.responses = AsyncResponses(self, api_prefix="/openai/deployments/{deployment_id}/responses")
+
 
 import os
 from typing import TYPE_CHECKING, Any, Union, Mapping
@@ -47,6 +64,29 @@ from ._utils import (
     is_mapping,
     get_async_library,
 )
+class Responses:
+    def __init__(self, client, api_prefix="/v1/responses"):
+        self._client = client
+        self._api_prefix = api_prefix
+
+    def create(self, deployment_id: str, **kwargs):
+        path = self._api_prefix.format(deployment_id=deployment_id)
+        return self._client._request("POST", path, json=kwargs)
+from openai import AzureOpenAI
+
+client = AzureOpenAI(
+    api_key="YOUR_KEY",
+    api_version="2024-02-15-preview",
+    azure_endpoint="https://YOUR-RESOURCE.openai.azure.com"
+)
+
+response = client.responses.create(
+    deployment_id="gpt-4o",
+    input=[{"role": "user", "content": "Summarize this document"}]
+)
+
+print(response.output_text)
+
 from ._compat import cached_property
 from ._version import __version__
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
