@@ -16,6 +16,18 @@ from .files import (
     FilesWithStreamingResponse,
     AsyncFilesWithStreamingResponse,
 )
+def add_files(self, vector_store_id, files, chunking_strategy=None, **kwargs):
+    # Fetch vector store settings if no chunking_strategy is provided
+    if chunking_strategy is None:
+        store = self.retrieve(vector_store_id)
+        chunking_strategy = store.get("chunking_strategy")
+    payload = {
+        "files": files,
+        "chunking_strategy": chunking_strategy,
+        **kwargs
+    }
+    return self._client.post(f"/vector_stores/{vector_store_id}/files", json=payload)
+
 from ...types import (
     FileChunkingStrategyParam,
     vector_store_list_params,
