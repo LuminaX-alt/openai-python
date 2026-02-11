@@ -47,6 +47,19 @@ from ._utils import (
     is_mapping,
     get_async_library,
 )
+# openai/_client.py
+import httpx
+
+class OpenAI:
+    def __init__(self, *, timeout: float = 30.0, max_connections: int = 100, max_keepalive_connections: int = 20, **kwargs):
+        self._timeout = timeout
+        self._pool_limits = httpx.Limits(
+            max_connections=max_connections,
+            max_keepalive_connections=max_keepalive_connections
+        )
+        self._client = httpx.Client(timeout=self._timeout, limits=self._pool_limits)
+        super().__init__(**kwargs)
+
 from ._compat import cached_property
 from ._version import __version__
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
@@ -56,6 +69,19 @@ from ._base_client import (
     SyncAPIClient,
     AsyncAPIClient,
 )
+# openai/_async_client.py
+import httpx
+
+class AsyncOpenAI:
+    def __init__(self, *, timeout: float = 30.0, max_connections: int = 100, max_keepalive_connections: int = 20, **kwargs):
+        self._timeout = timeout
+        self._pool_limits = httpx.Limits(
+            max_connections=max_connections,
+            max_keepalive_connections=max_keepalive_connections
+        )
+        self._client = httpx.AsyncClient(timeout=self._timeout, limits=self._pool_limits)
+        super().__init__(**kwargs)
+
 
 if TYPE_CHECKING:
     from .resources import (
