@@ -37,6 +37,19 @@ if TYPE_CHECKING:
 
 def flatten(t: Iterable[Iterable[_T]]) -> list[_T]:
     return [item for sublist in t for item in sublist]
+    # openai/_utils/_httpx_client.py
+
+def request(self, method: str, url: str, headers=None, **kwargs):
+    # Merge default headers, extra_headers, and supplied headers
+    merged_headers = {
+        **self._default_headers,
+        **(self._extra_headers or {}),
+        **(headers or {})
+    }
+    kwargs["headers"] = merged_headers
+    
+    return self._client.request(method, url, **kwargs)
+
 
 
 def extract_files(
