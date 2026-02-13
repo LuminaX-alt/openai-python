@@ -149,6 +149,29 @@ if TYPE_CHECKING:
     from httpx._config import (
         DEFAULT_TIMEOUT_CONFIG,  # pyright: ignore[reportPrivateImportUsage]
     )
+import asyncio, warnings, atexit
+
+class AsyncHttpxClientWrapper:
+    def __init__(self, *args, **kwargs):
+        ...
+        atexit.register(self._safe_close)
+
+    async def aclose(self):
+        await self._client.aclose()
+
+    def _safe_close(self):
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                loop.create_task(self.aclose())
+            else:
+                loop.run_until_complete(self.aclose())
+        except RuntimeError:
+            warnings.warn("AsyncHttpxClientWrapper could not be cleanly closed (no event loop).")
+
+    def __del__(self):
+        # No cross-thread task creation in destructor
+        pass
 
     HTTPX_DEFAULT_TIMEOUT = DEFAULT_TIMEOUT_CONFIG
 else:
